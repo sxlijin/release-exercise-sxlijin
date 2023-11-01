@@ -87,6 +87,17 @@ var _ = BeforeSuite(func() {
 //		1- create a HelloWorld resource, verify that the pod logs contain its message
 //		2- create a HelloWorld resource, change its spec.message, verify that the pod logs contain the new spec.message
 //		3- create and delete a HelloWorld resource, verify that a pod was started and then deleted
+//
+// TODO- error handling tests
+//		What happens on a malformed spec? Presumably apiserver rejects the update
+//		What happens if deleting the existing pod takes too long?
+//		What happens if creating the new pod fails? How long does the controller retry for?
+//
+// TODO- production ops scenarios
+//		What happens if we release a bug? How do controller rollbacks work?
+//		It looks like pushing the controller triggers reconciliation on every existing resource. Unclear if this is a sensible
+//			default to have out of the box (I undderstand why it works this way, but this means that controller updates can
+//			blow up running services, or if something needs more stringent uptime guarantees, this could easily wreak havoc with that.
 
 var _ = AfterSuite(func() {
 	By("tearing down the test environment")
