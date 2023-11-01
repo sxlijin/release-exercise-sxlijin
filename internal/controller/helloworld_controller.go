@@ -21,8 +21,10 @@ import (
 	"fmt"
 
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
 	corev1 "k8s.io/api/core/v1"
@@ -53,33 +55,57 @@ type HelloWorldReconciler struct {
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.16.0/pkg/reconcile
 func (r *HelloWorldReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	logger := log.FromContext(ctx)
+	logger.Info("Reconciler is running", "logged-namespace", req.NamespacedName)
+
+	newPod := createPod(&req.NamespacedName)
+	existingPod := &corev1.Pod{}
+	if getPodErr := r.Client.Get(ctx, types.NamespacedName{Name: newPod.Name, Namespace: newPod.Namespace}, existingPod); getPodErr == nil {
+		if err := r.Client.Delete(ctx, existingPod); err != nil {
+			// TODO: what is the correct error behavior here?
+			return ctrl.Result{}, err
+		}
+		// TODO: best-effort block/defer until the pod is actually deleted
+		// creation after deletion right now appears to work because the controller will retry reconciliation,
+		// but I'm not clear on exactly what the retry policy semantics are
+	}
 
 	var helloworld api.HelloWorld
 	if err := r.Client.Get(ctx, req.NamespacedName, &helloworld); err != nil {
-		logger.Error(err, "unable to fetch HelloWorld resource")
-		return ctrl.Result{}, client.IgnoreNotFound(err)
+		retErr := client.IgnoreNotFound(err)
+		if retErr != nil {
+			logger.Error(retErr, "unable to fetch HelloWorld resource")
+		}
+		return ctrl.Result{}, retErr
+	}
+	newPod.Spec = corev1.PodSpec{
+		Containers: []corev1.Container{
+			{
+				Name:    "echo-container",
+				Image:   "ubuntu",
+				Command: []string{"/bin/bash", "-c", fmt.Sprintf("echo %s && tail -f /dev/null", helloworld.Spec.Message)},
+			},
+		},
+	}
+	// Set the owner reference to the custom resource
+	if err := controllerutil.SetControllerReference(&helloworld, newPod, r.Scheme); err != nil {
+		return ctrl.Result{}, err
+	}
+	if err := r.Client.Create(ctx, newPod); err != nil {
+		// This error will recur until the above described pod deletion succeeds
+		logger.Error(err, "failed to create new pod")
+		return ctrl.Result{}, err
 	}
 
 	return ctrl.Result{}, nil
 }
 
-func createPod(hw *api.HelloWorld) *corev1.Pod {
-	pod := &corev1.Pod{
+func createPod(helloworldName *types.NamespacedName) *corev1.Pod {
+	return &corev1.Pod{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      fmt.Sprintf("%s-pod", hw.Name),
-			Namespace: hw.Namespace,
-		},
-		Spec: corev1.PodSpec{
-			Containers: []corev1.Container{
-				{
-					Name:    "echo-container",
-					Image:   "ubuntu",
-					Command: []string{"/bin/echo", hw.Spec.Message},
-				},
-			},
+			Name:      fmt.Sprintf("%s-pod", helloworldName.Name),
+			Namespace: helloworldName.Namespace,
 		},
 	}
-	return pod
 }
 
 // SetupWithManager sets up the controller with the Manager.

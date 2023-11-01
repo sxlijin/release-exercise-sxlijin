@@ -9,4 +9,4 @@ metadata:
     app.kubernetes.io/created-by: release-exercise-sxlijin
   name: helloworld-sample
 spec:
-  # TODO(user): Add fields here
+  message: "This is a new helloworld sample!"
