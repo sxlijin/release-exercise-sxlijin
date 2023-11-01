@@ -25,3 +25,4 @@ release-exercise
 # build logs
 tmp
 kubebuilder
+bin

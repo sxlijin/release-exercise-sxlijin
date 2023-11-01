@@ -7,4 +7,14 @@ layout:
 - go.kubebuilder.io/v4
 projectName: release-exercise-sxlijin
 repo: release-exercise
+resources:
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: release-exercise.sourcegraph.com
+  group: release-exercise.sourcegraph.com
+  kind: HelloWorld
+  path: release-exercise/api/v1
+  version: v1
 version: "3"
