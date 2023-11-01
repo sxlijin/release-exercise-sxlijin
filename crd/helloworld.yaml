@@ -1,0 +1,24 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: helloworld.release-exercise
+spec:
+  group: release-exercise
+  versions:
+    - name: v1
+      served: true
+      storage: true
+
+  # Namespaced b/c helloworld resources map to pods, and we need to decide to put the pod somewhere
+  scope: Namespaced
+  names:
+    plural: helloworlds
+    singular: helloworld
+    kind: HelloWorld
+
+  validation:
+    openAPIV3Schema:
+      type: object
+      properties:
+        message:
+          type: string
