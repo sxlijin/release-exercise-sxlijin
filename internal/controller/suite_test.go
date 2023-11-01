@@ -83,6 +83,11 @@ var _ = BeforeSuite(func() {
 
 })
 
+// TODO- functionality tests
+//		1- create a HelloWorld resource, verify that the pod logs contain its message
+//		2- create a HelloWorld resource, change its spec.message, verify that the pod logs contain the new spec.message
+//		3- create and delete a HelloWorld resource, verify that a pod was started and then deleted
+
 var _ = AfterSuite(func() {
 	By("tearing down the test environment")
 	err := testEnv.Stop()
