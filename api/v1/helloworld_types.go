@@ -29,7 +29,7 @@ type HelloWorldSpec struct {
 	// Important: Run "make" to regenerate code after modifying this file
 
 	// Foo is an example field of HelloWorld. Edit helloworld_types.go to remove/update
-	Foo string `json:"foo,omitempty"`
+	Message string `json:"message,omitempty"`
 }
 
 // HelloWorldStatus defines the observed state of HelloWorld
