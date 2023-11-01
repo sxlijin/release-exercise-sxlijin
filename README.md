@@ -13,3 +13,4 @@
   - used chatgpt + pkg.go.dev to finish the controller implementation
     - a lot of APIs that i wasn't familiar with (have never written code to interface with k8s internals before)
     - ran into a few hallucinations along the way; finding docs for CRD definitions was surprisingly hard without chatgpt
+  - no cody: my personal IDE is vim (i have a TODO to learn vscode, but... time)
