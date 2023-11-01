@@ -37,9 +37,7 @@ spec:
               description: HelloWorldSpec defines the desired state of HelloWorld
               properties:
                 message:
-                  description:
-                    Foo is an example field of HelloWorld. Edit helloworld_types.go
-                    to remove/update
+                  description: This is the Message we want to echo
                   type: string
               type: object
             status:
