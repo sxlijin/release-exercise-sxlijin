@@ -24,7 +24,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
-	releaseexercisesourcegraphcomv1 "release-exercise/api/v1"
+	api "release-exercise/api/v1"
 )
 
 // HelloWorldReconciler reconciles a HelloWorld object
